@@ -11,13 +11,12 @@ import java.util.Random;
 
 import functions.Functions;
 import main.MyResult;
-import main.PBest;
 import main.Particle;
 import properties.ReadProperties;
 
 public class FSS {
 	static ReadProperties properties = new ReadProperties();
-	
+
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		for (int a=0; a<30; a++){
@@ -28,7 +27,7 @@ public class FSS {
 
 			Particle[] particles = initialize();
 			File file = new File("files");
-				file = new File(file, "fss");	
+			file = new File(file, "fss");	
 			if(!file.isDirectory()){
 				file.mkdirs();
 			}
@@ -38,16 +37,15 @@ public class FSS {
 				file.mkdirs();
 			}
 
-					String fileName = properties.getMaxSpeed() +  ";" + dateFormat.format(date) +  ".csv";
+			String fileName = properties.getMaxSpeed() +  ";" + dateFormat.format(date) +  ".csv";
 
 			File file2 = new File(file,fileName );
 
 			PrintWriter pw = new PrintWriter(file2);
 			MyResult getResult;
-			PBest gBest = new PBest();
+			FishBest gBest = new FishBest();
 			getResult = iteration(properties.getFunctionName(), true, particles, gBest, 0);
 			particles = getResult.getParticles();
-			gBest = getResult.getGbest();
 			//pw.append("iteration: " + "0");
 			//pw.append("\n");
 			//pw.append(gBest.getBestPos().toString());
@@ -58,8 +56,7 @@ public class FSS {
 				getResult = new MyResult();
 				getResult = iteration(properties.getFunctionName(), false, particles, gBest, i);
 				particles = getResult.getParticles();
-				gBest = new PBest();
-				gBest = getResult.getGbest();
+				gBest = new FishBest();
 				//		pw.append("iteration: " + String.valueOf(i));
 				//		pw.append("\n");
 				//		pw.append(gBest.getBestPos().toString());
@@ -77,11 +74,11 @@ public class FSS {
 
 		}
 	}
-	private static MyResult iteration(String functionToUse, boolean firstIteration, Particle[] particles, PBest gBest, int iterationNumber){
+	private static MyResult iteration(String functionToUse, boolean firstIteration, Particle[] particles, FishBest gBest, int iterationNumber){
 		functionToUse = functionToUse.toLowerCase();
-		ArrayList<PBest> results = new ArrayList<PBest>(properties.getParticlesNumber());
+		ArrayList<FishBest> results = new ArrayList<FishBest>(properties.getParticlesNumber());
 		for (int i=0; i<particles.length; i++){
-			PBest particleResult = new PBest();
+			FishBest particleResult = new FishBest();
 			switch (functionToUse){
 			case "sphere":
 				particleResult.setFitness(Functions.sphere(particles[i].getX()));
@@ -100,7 +97,7 @@ public class FSS {
 				results.add(i, particleResult);
 				break;
 			}
-			particles[i].setPbest(updatePBest(results.get(i), particles[i], firstIteration));
+			//particles[i].setPbest(updatePBest(results.get(i), particles[i], firstIteration));
 			if(firstIteration && i==0){
 			}
 		}
@@ -115,23 +112,74 @@ public class FSS {
 		particles = updatePos(particles);
 		MyResult result = new MyResult();
 		result.setParticles(particles);
-		result.setGbest(gBest);
 		return result;
 	}
-	private static PBest updatePBest(PBest result, Particle particle, boolean firstIteration){
-		if(firstIteration){
-			particle.getPbest().setBestPos(result.getBestPos());
-			particle.getPbest().setFitness(result.getFitness());
-		} else{
 
-			if( result.getFitness() < particle.getPbest().getFitness()){
-				particle.getPbest().setBestPos(result.getBestPos());
-				particle.getPbest().setFitness(result.getFitness());
-			}
+
+	private static double movimentoIndividual(double pos, double step){
+		double randomNumber = Math.random();
+		randomNumber *= Math.floor(Math.random()*2) == 1 ? 1 : -1;
+		double newPos = pos + (step * randomNumber );
+		return newPos;
+	}
+	/*
+	private static double Alimentacao(double weight, double fitness){
+
+	}*/
+	private static double movimentoColetivoInstitivo(ArrayList<Fish> fish, int dimension){
+		double mov;
+		double firstPart = 0;
+		double secondPart = 0;
+		for (int i=0; i<fish.size(); i++){
+
+			firstPart = firstPart + (fish.get(i).getFishBest().getFitness() * fish.get(i).getCurrentPos(dimension));
+			secondPart = secondPart + fish.get(i).getFishBest().getFitness(); 
 		}
-		return particle.getPbest();
+		mov = (firstPart / secondPart);
+		return mov;
+	}
+	private static double atualizaPosMovimentoColetivoInstitivo(double pos, double mov){
+		pos = pos + mov;
+		return pos;
+	}
+	private static double movimentoColetivoVolitivo(ArrayList<Fish> fish, int dimension){
+		double mov;
+		double firstPart = 0;
+		double secondPart = 0;
+		for (int i=0; i<fish.size(); i++){
+			firstPart = firstPart + (fish.get(i).getWeight(dimension) * fish.get(i).getCurrentPos(dimension));
+			secondPart = secondPart + fish.get(i).getWeight(dimension); 
+		}
+		mov = (firstPart / secondPart);
+		return mov;
 	}
 
+	private static double atualizaPosMovimentoColetivoVolitivo(double pos, double mov, double stepVol, boolean gainedWeight){
+		double firstPart;
+		double secondPart;
+		double result;
+		firstPart = pos - mov;
+		secondPart = distance(pos, mov);
+		result = stepVol * (firstPart/secondPart);
+		if (gainedWeight){
+			result = pos - result;
+		} else{
+			result = pos + result;
+		}
+		return result;
+	}
+	private static double distance(double[] a, double[] b) {
+		double diff_square_sum = 0.0;
+		for (int i = 0; i < a.length; i++) {
+			diff_square_sum += (a[i] - b[i]) * (a[i] - b[i]);
+		}
+		return Math.sqrt(diff_square_sum);
+	}
+	private static double distance(double a, double b) {
+		double diff_square_sum = 0.0;
+		diff_square_sum += (a - b) * (a - b);
+		return Math.sqrt(diff_square_sum);
+	}
 	private static Particle[] updatePos(Particle[] particles){
 		for (int i=0; i<properties.getParticlesNumber(); i++){
 			for (int j=0; j<properties.getDimension(); j++){
@@ -146,7 +194,7 @@ public class FSS {
 		}
 		return particles;
 	}
-	private static Particle[] updateSpeed(PBest gBest, Particle[] particles, int iteration){
+	private static Particle[] updateSpeed(FishBest gBest, Particle[] particles, int iteration){
 		/*
 		 * this initialized value holds no importance. It has this value just because it is necessary to initialize
 		 * this variable
@@ -173,6 +221,6 @@ public class FSS {
 		return particles;
 	}
 
-	}
+}
 
 

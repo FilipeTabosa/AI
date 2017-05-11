@@ -1,11 +1,12 @@
-package main;
+package fss;
 
 import java.util.ArrayList;
 
-public class PBest {
+public class FishBest {
 	private ArrayList<Double> bestPos;
 	private double fitness;
-	public PBest() {
+	private ArrayList<Double> weight;
+	public FishBest() {
 		this.bestPos = new ArrayList<Double>();
 	}
 	public double getFitness() {
@@ -32,6 +33,24 @@ public class PBest {
 	public void setBestPos(double pbest, int pos) {
 		this.bestPos.set(pos, pbest);
 	}
-
+	
+	public void addWeight(double weight){
+		this.weight.add(weight);
+	}
+	public void setWeight(ArrayList<Double> weight){
+		for (int i=0; i<weight.size(); i++){
+			this.weight.add(i, weight.get(i));
+		}
+		
+	}
+	public double getWeight(int pos) {
+		return weight.get(pos);
+	}
+	public ArrayList<Double> getWeight(){
+		return weight;
+	}
+	public void setWeight(double weight, int pos) {
+		this.weight.set(pos, weight);
+	}
 	
 }
