@@ -16,16 +16,16 @@ public class GenerateMeanFile {
 	
 	public static void main(String[] args) throws FileNotFoundException {
 	String[] names = {"rosenbrock", "rastrigin", "sphere"};
-	String[] topology = {"focal"};
-	String[] weight = {"0.8", "1.0", "0.9-0.4", "clerc"};
+	String[] algorithms = {"pso"};
+	//String[] weight = {"0.8", "1.0", "0.9-0.4", "clerc"};
 	for(int i=0; i<names.length; i++){
-		for (int j=0; j<topology.length; j++){
-			for (int k=0; k<weight.length; k++){
-				String foldPath = "D:\\mestrado\\workspace\\Swarm_intelligence_PSO\\files\\" + topology[j] + "\\" + names[i] + "\\" + weight[k];
+		for (int j=0; j<algorithms.length; j++){
+//			for (int k=0; k<weight.length; k++){
+				String foldPath = "D:\\mestrado\\comparacao\\" +algorithms[j] + "\\" + names[i];
 				writeMeanFile(foldPath);
 			}
 		}
-	}
+	//}
 	
 	}
 	public static void writeMeanFile(String foldPath) throws FileNotFoundException{

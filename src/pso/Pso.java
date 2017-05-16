@@ -1,4 +1,4 @@
-package main;
+package pso;
 
 
 import java.io.File;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
+import functions.Functions;
 import properties.ReadProperties;
 
 public class Pso {
@@ -261,18 +262,18 @@ public class Pso {
 			PBest particleResult = new PBest();
 			switch (functionToUse){
 			case "sphere":
-				particleResult.setFitness(sphere(particles[i].getX()));
+				particleResult.setFitness(Functions.sphere(particles[i].getX()));
 				particleResult.setBestPos(particles[i].getX());
 				results.add(i, particleResult);			
 				break;
 			case "rastrigin":
-				particleResult.setFitness(rotatedRastrigin(particles[i].getX()));
+				particleResult.setFitness(Functions.rotatedRastrigin(particles[i].getX()));
 				particleResult.setBestPos(particles[i].getX());
 				results.add(i, particleResult);
 				break;
 
 			case "rosenbrock":
-				particleResult.setFitness(rosenbrock(particles[i].getX()));
+				particleResult.setFitness(Functions.rosenbrock(particles[i].getX()));
 				particleResult.setBestPos(particles[i].getX());
 				results.add(i, particleResult);
 				break;

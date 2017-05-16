@@ -1,4 +1,4 @@
-package main;
+package pso;
 
 
 public class MyResult {

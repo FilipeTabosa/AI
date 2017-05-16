@@ -10,10 +10,13 @@ import java.util.Date;
 import java.util.Random;
 
 import functions.Functions;
-import main.MyResult;
-import main.Particle;
 import properties.ReadProperties;
-
+import pso.MyResult;
+import pso.Particle;
+/*
+ * 
+ * Currently not working. Needs to be modified.
+ */
 public class FSS {
 	static ReadProperties properties = new ReadProperties();
 
